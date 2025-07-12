@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Planner d'Étude Complet</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #c1d7ff, #2a67f4);
+    color: #fff;
+    margin: 0; padding: 20px;
+    min-height: 100vh;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  header, main {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 2.6rem;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    margin-bottom: 6px;
+  }
+  #date {
+    font-style: italic;
+    opacity: 0.9;
+    margin-bottom: 10px;
+  }
+  section {
+    background: rgba(255 255 255 / 0.15);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+     }
+  h2 {
+    margin-top: 0;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+  /* Task list */
+  #taskInput, #motivationInput {
+    width: 70%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+  }
+  #addTaskBtn, #editMotivationBtn {
+    background-color: #1a4de1;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background-color 0.3s ease;
+  }
+  #addTaskBtn:hover, #editMotivationBtn:hover {
+    background-color: #1543bb;
+  }
+  ul#taskList {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 20px;
+    max-height: 220px;
+    overflow-y: auto;
+    text-align: left;
+  }
+  ul#taskList li {
+    background: rgba(255 255 255 / 0.25);
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+  ul#taskList li .taskLabel {
+    flex-grow: 1;
+    cursor: pointer;
+  }
+  ul#taskList li .deleteBtn {
+    background: transparent;
+    border: none;
+    color: #ff5c5c;
+    font-weight: 700;
+    font-size: 1.3rem;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.3s ease;
+  }
+  ul#taskList li .deleteBtn:hover {
+    color: #ff1a1a;
+  }
+  /* Progress bar */
+  #progressContainer {
+    background: rgba(255 255 255 / 0.35);
+    border-radius: 20px;
+    height: 24px;
+    margin-top: 15px;
+    overflow: hidden;
+  }
+  #progressBar {
+    height: 100%;
+    width: 0;
+    background-color: #1a4de1;
+    border-radius: 20px 0 0 20px;
+    transition: width 0.3s ease;
+  }
+  #progressPercent {
+    margin-top: 8px;
+    font-weight: 600;
+  }
+  /* Free writing */
+  #freeWriting {
+    width: 100%;
+    min-height: 100px;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    resize: vertical;
+  }
+  /* Pomodoro */
+  #pomodoro {
+    text-align: center;
+  }
+  #timerDisplay {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: 4px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.35);
+  }
+  #pomodoroButtons button {
+    background-color: #1a4de1;
+    border: none;
+    padding: 12px 18px;
+    margin: 0 8px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 90px;
+  }
+  #pomodoroButtons button:hover {
+    background-color: #1543bb;
+  }
+  /* Scrollbar */
+  ul#taskList::-webkit-scrollbar {
+    width: 7px;
+  }
+  ul#taskList::-webkit-scrollbar-thumb {
+    background: rgba(26, 77, 225, 0.6);
+    border-radius: 5px;
+  }
+  ul#taskList::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  /* Study tips page link */
+  #tipsLink {
+    color: #bbdefb;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  #tipsPage {
+    display: none;
+    background: rgba(255 255 255 / 0.15);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: left;
+  }
+  #tipsPage h2 {
+    margin-top: 0;
+    font-weight: 700;
+  }
+  #tipsPage ul {
+    padding-left: 20px;
+  }
+  #tipsPage a {
+    color: #bbdefb;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Planner d'Étude Complet</h1>
+  <div id="date"></div>
+  <div id="motivationMsg" title="Cliquez pour modifier le message de motivation" style="cursor:pointer; font-style: italic; margin-bottom: 10px;"></div>
+  <button id="editMotivationBtn">Modifier motivation du jour</button>
+</header>
+
+<main>
+  <section id="taskSection">
+    <h2>Liste des tâches à faire</h2>
+    <input id="taskInput" placeholder="Ajouter une tâche…" autocomplete="off" />
+    <button id="addTaskBtn">Ajouter</button>
+    <ul id="taskList" aria-live="polite" aria-relevant="additions removals"></ul>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+    <div id="progressPercent"></div>
+  </section>
+
+  <section id="freeWritingSection">
+    <h2>Espace d’écriture libre</h2>
+    <textarea id="freeWriting" placeholder="Ce que je ressens aujourd’hui…"></textarea>
+  </section>
+
+  <section id="pomodoro">
+    <h2>Minuteur Pomodoro</h2>
+    <div id="timerDisplay">25:00</div>
+    <div id="pomodoroButtons">
+      <button id="startBtn">Démarrer</button>
+      <button id="pauseBtn" disabled>Pause</button>
+      <button id="resetBtn">Réinitialiser</button>
+    </div>
+  </section>
+
+  <section id="studyTipsSection">
+    <h2><span id="tipsLink">Conseils de Révision 📚</span></h2>
+    <div id="tipsPage">
+      <h3>Stratégies d’étude</h3>
+      <ul>
+        <li>Pratique la répétition espacée pour mieux mémoriser.</li>
+        <li>Fais des pauses régulières pour rester concentré.</li>
+        <li>Utilise des techniques de prise de notes actives.</li>
+        <li>Évite les distractions pendant les sessions d’étude.</li>
+        <li>Organise tes sessions avec le Pomodoro.</li>
+      </ul>
+      <h3>Gestion du stress</h3>
+      <ul>
+        <li>Respire profondément en cas de nervosité.</li>
+        <li>Fais de l’exercice physique régulièrement.</li>
+        <li>Pratique la méditation ou la pleine conscience.</li>
+        <li>Dors suffisamment chaque nuit.</li>
+      </ul>
+      <h3>Ressources utiles</h3>
+      <ul>
+        <li><a href="https://www.youtube.com/watch?v=5MgBikgcWnY" target="_blank" rel="noopener">Techniques de mémorisation (YouTube)</a></li>
+        <li><a href="https://quizlet.com/fr" target="_blank" rel="noopener">Quizlet - flashcards & révisions</a></li>
+        <li><a href="https://www.example.com/pdf-guide" target="_blank" rel="noopener">Guide PDF de révision (exemple)</a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Date affichée en haut
+  function formatDate(d) {
+    return d.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  document.getElementById('date').textContent = formatDate(new Date());
+
+  // Motivation message editable by admin (click or button)
+  const motivationKey = 'motivationMsg';
+  const motivationElem = document.getElementById('motivationMsg');
+  const editMotivationBtn = document.getElementById('editMotivationBtn');
+
+  function loadMotivation() {
+    const msg = localStorage.getItem(motivationKey) || '« Chaque jour est une nouvelle chance de réussir. »';
+    motivationElem.textContent = msg;
+  }
+
+  function editMotivation() {
+    const newMsg = prompt('Modifier le message de motivation du jour :', motivationElem.textContent);
+    if (newMsg !== null) {
+      localStorage.setItem(motivationKey, newMsg.trim() || '« Chaque jour est une nouvelle chance de réussir. »');
+      loadMotivation();
+    }
+  }
+
+  motivationElem.onclick = editMotivation;
+  editMotivationBtn.onclick = editMotivation;
+  loadMotivation();
+
+  // Task list with add/check/delete + localStorage
+  const taskInput = document.getElementById('taskInput');
+  const addTaskBtn = document.getElementById('addTaskBtn');
+  const taskList = document.getElementById('taskList');
+  const progressBar = document.getElementById('progressBar');
+  const progressPercent = document.getElementById('progressPercent');
+
+  const tasksKey = 'tasksList';
+
+  function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem(tasksKey) || '[]');
+    taskList.innerHTML = '';
+    tasks.forEach(t => addTaskToDOM(t.text, t.done));
+    updateProgress();
+  }
+
+  function saveTasks() {
+    const tasks = [];
+    taskList.querySelectorAll('li').forEach(li => {
+      const text = li.querySelector('span.taskLabel').textContent;
+      const done = li.querySelector('input[type=checkbox]').checked;
+      tasks.push({text, done});
+    });
+    localStorage.setItem(tasksKey, JSON.stringify(tasks));
+    updateProgress();
+  }
+
+  function addTaskToDOM(text, done = false) {
+    const li = document.createElement('li');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = done;
+    checkbox.onchange = saveTasks;
+
+    const label = document.createElement('span');
+    label.textContent = text;
+    label.className = 'taskLabel';
+    if (done) label.style.textDecoration = 'line-through';
+
+    checkbox.addEventListener('change', () => {
+      label.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
+      saveTasks();
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.className = 'deleteBtn';
+    delBtn.setAttribute('aria-label', 'Supprimer tâche');
+    delBtn.onclick = () => {
+      li.remove();
+      saveTasks();
+    };
+
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    li.appendChild(delBtn);
+    taskList.appendChild(li);
+  }
+
+  addTaskBtn.onclick = () => {
+    const text = taskInput.value.trim();
+    if (!text) return;
+    addTaskToDOM(text);
+    taskInput.value = '';
+    taskInput.focus();
+    saveTasks();
+  };
+  
+  taskInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addTaskBtn.click();
+  });
+
+  function updateProgress() {
+    const total = taskList.children.length;
+    if (total === 0) {
+      progressBar.style.width = '0%';
+      progressPercent.textContent = 'Aucune tâche ajoutée';
+      return;
+    }
+    const doneCount = Array.from(taskList.children).filter(li => li.querySelector('input[type=checkbox]').checked).length;
+    const percent = Math.round((doneCount / total) * 100);
+    progressBar.style.width = percent + '%';
+    progressPercent.textContent = ${percent}% des tâches accomplies;
+  }
+
+  loadTasks();
+
+  // Free writing area save/load
+  const freeWriting = document.getElementById('freeWriting');
+  const freeWritingKey = 'freeWritingContent';
+
+  freeWriting.value = localStorage.getItem(freeWriting
